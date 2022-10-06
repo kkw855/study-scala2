@@ -67,7 +67,13 @@ object Ch1 extends App {
     def format(value: A): String
   }
 
-  object Printable {}
+  object Printable {
+    def format[A](value: A)(implicit printer: Printable[A]): String =
+      printer.format(value)
+
+    def print[A](value: A)(implicit printer: Printable[A]): Unit =
+      println(printer.format(value))
+  }
 
   object PrintableInstances {
     implicit val intPrintable: Printable[Int] =
