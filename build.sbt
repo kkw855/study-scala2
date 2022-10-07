@@ -22,7 +22,8 @@ lazy val root = (project in file("."))
       "tf.tofu" %% "derevo-cats" % "0.12.5",
       "tf.tofu" %% "derevo-cats-tagless" % "0.12.5",
       "tf.tofu" %% "derevo-circe-magnolia" % "0.12.5",
-      "tf.tofu" %% "tofu-core-higher-kind" % "0.10.2"
+      "tf.tofu" %% "tofu-core-higher-kind" % "0.10.2",
+      "org.scalatest" %% "scalatest" % "3.2.12" % "test"
     ),
     scalacOptions ++= Seq(
       "-Ymacro-annotations",

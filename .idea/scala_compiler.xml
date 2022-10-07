@@ -47,7 +47,7 @@
         <parameter value="-Wconf:cat=unused:info" />
       </parameters>
       <plugins>
-        <plugin path="$USER_HOME$/AppData/Local/Coursier/Cache/v1/https/repo1.maven.org/maven2/org/typelevel/kind-projector_2.13.5/0.12.0/kind-projector_2.13.5-0.12.0.jar" />
+        <plugin path="C:\Users\kkw85\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\typelevel\kind-projector_2.13.5\0.12.0\kind-projector_2.13.5-0.12.0.jar" />
       </plugins>
     </profile>
     <profile name="sbt 2" modules="minimal">
