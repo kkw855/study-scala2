@@ -1,5 +1,7 @@
 package book.scala_with_cats
 
+import cats.Applicative
+
 object Ch1 extends App {
   // Define a very simple JSON AST
   sealed trait Json
@@ -63,8 +65,11 @@ object Ch1 extends App {
 
   Json.toJson(Option("A string"))
 
-  trait Printable[A] {
+  trait Printable[A] { self =>
     def format(value: A): String
+
+    def contramap[B](func: B => A): Printable[B] =
+      (value: B) => self.format(func(value))
   }
 
   object Printable {
@@ -81,7 +86,13 @@ object Ch1 extends App {
       String.valueOf
 
     implicit val stringPrintable: Printable[String] =
-      identity
+      v => s"'$v'"
+
+    implicit val booleanPrintable: Printable[Boolean] =
+      if (_) "yes" else "no"
+
+    implicit def boxPrintable[A](implicit p: Printable[A]): Printable[Box[A]] =
+      p.contramap[Box[A]](_.value)
   }
   // Interface syntax
   object PrintableSyntax {
@@ -212,4 +223,90 @@ object Ch1 extends App {
 
   println(add(List(1, 2, 3)))
   println(add(List(Some(1), None, Some(2), None, Some(3))))
+
+  case class Order(totalCost: Double, quantity: Double)
+  object Order {
+    implicit val monoidOrder: Monoid[Order] =
+      Monoid.instance(
+        Order(0, 0),
+        (a, b) => Order(a.totalCost + b.totalCost, a.quantity + b.quantity)
+      )
+  }
+
+  println(add(List(Order(3, 4), Order(1, 2))))
+
+  import cats.Functor
+  import cats.syntax.functor._
+
+  val func1 = (a: Int) => a + 1
+  val func2 = (a: Int) => a * 2
+  val func3 = (a: Int) => s"${a}!"
+  val func4 = func1 map func2 map func3
+  func4(123)
+
+  def doMath[F[_]: Functor](start: F[Int]): F[Int] =
+    start map { n => n + 1 * 2 }
+
+  println(doMath(Option(20)))
+  println(doMath(List(1, 2, 3)))
+
+  sealed trait Tree[+A]
+  object Tree {
+    def branch[A](left: Tree[A], right: Tree[A]): Tree[A] =
+      Branch(left, right)
+
+    def leaf[A](value: A): Tree[A] =
+      Leaf(value)
+  }
+  final case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+
+  final case class Leaf[A](value: A) extends Tree[A]
+
+  implicit val treeFunctor: Functor[Tree] =
+    new Functor[Tree] {
+      def map[A, B](fa: Tree[A])(f: A => B): Tree[B] = fa match {
+        case Branch(left, right) => Branch(map(left)(f), map(right)(f))
+        case Leaf(value)         => Leaf(f(value))
+      }
+    }
+
+  println(Tree.leaf(100).map(_ * 2))
+  println(Tree.branch(Leaf(10), Leaf(20)).map(_ * 2))
+
+  println(Printable.format("hello"))
+  println(Printable.format(true))
+
+  final case class Box[A](value: A)
+
+  println(Printable.format(Box("hello world")))
+  println(Printable.format(Box(true)))
+
+  import cats.Monad
+  import cats.syntax.functor._
+  import cats.syntax.flatMap._
+  import cats.Id
+
+  def sumSquare[F[_]: Monad](a: F[Int], b: F[Int]): F[Int] =
+    for {
+      x <- a
+      y <- b
+    } yield x * x + y * y
+
+  println(sumSquare(Option(3), Option(4)))
+  println(sumSquare(List(1, 2, 3), List(4, 5)))
+  println(sumSquare(3: Id[Int], 4: Id[Int]))
+
+  import cats.syntax.either._
+
+  val either1: Either[String, Int] = Right(10)
+  val either2: Either[String, Int] = Right(32)
+
+  for {
+    a <- either1
+    b <- either2
+  } yield a + b
+
+  // println(Either.catchOnly[IndexOutOfBoundsException]("foo".toInt))
+  println(Either.catchOnly[NumberFormatException]("123".toInt))
+  println(Either.catchNonFatal(sys.error("Badness")))
 }
