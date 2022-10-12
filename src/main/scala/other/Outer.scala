@@ -1,5 +1,7 @@
 package other
 
-object Outer extends App {
+import book.pfps.Ch1.Email
 
+object Outer extends App {
+ 
 }
