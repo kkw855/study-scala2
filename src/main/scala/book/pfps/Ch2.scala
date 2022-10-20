@@ -1,5 +1,3 @@
 package book.pfps
 
-object Ch2 extends App {
-
-}
+object Ch2 extends App {}

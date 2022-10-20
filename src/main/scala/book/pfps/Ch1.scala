@@ -1,5 +1,6 @@
 package book.pfps
 
+import cats._
 import cats.implicits._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.api.Refined
@@ -34,8 +35,6 @@ object Ch1 extends App {
   val email = Email("kkw855@gmail.com")
   println(Username("gews"))
   println(Email("kkw855@gmail.com"))
-
-  import cats.Applicative
 
 //  def wrap[F[_]: Applicative, A](a: A): F[A] =
 //    Applicative[F].point(a)
