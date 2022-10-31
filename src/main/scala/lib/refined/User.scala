@@ -63,4 +63,5 @@ object MyApp extends App {
     ).mapN(MyType.apply)
 
   println(validate("", 3))
+  println(validate("abc", 6))
 }
